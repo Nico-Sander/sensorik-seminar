@@ -1,0 +1,39 @@
+# ==========================================
+# LaTeX Hilfs- und temporäre Dateien
+# ==========================================
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.synctex(busy)
+*.toc
+
+# ==========================================
+# Bibliographie & Verzeichnisse
+# ==========================================
+*.bbl
+*.bcf
+*.blg
+*.lof
+*.lot
+*.run.xml
+
+# ==========================================
+# Editoren & Betriebssystem (optional)
+# ==========================================
+# macOS
+.DS_Store
+
+# TeXstudio / Texmaker / VS Code
+*.bak
+*.sav
+.vscode/
+
+# ==========================================
+# Generiertes PDF (optional)
+# ==========================================
+# Wenn du das fertige PDF nicht im Repo haben willst, 
+# entferne die Raute (#) in der nächsten Zeile:
+# *.pdf

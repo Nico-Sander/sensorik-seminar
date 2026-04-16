@@ -1,0 +1,85 @@
+\documentclass[12pt, a4paper, parskip=half]{scrartcl}
+
+% ==========================================
+% QUALITY OF LIFE PAKETE & EINSTELLUNGEN
+% ==========================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+\usepackage{setspace}
+\usepackage{csquotes}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+% ==========================================
+% METADATEN FÜR DIE TITELSEITE
+% ==========================================
+\title{Kalibrierung von 2D-Kameras}
+\subtitle{Seminararbeit im Modul Sensoren \& Aktoren für Robotersysteme}
+
+% Formatierung der Autoren in einer Tabelle für saubere Ausrichtung
+\author{
+  \begin{tabular}{c p{1cm} c}
+    \textbf{Nico Sander} & & \textbf{Marlon Leitschuh} \\
+    \small \href{mailto:sani1019@h-ka.de}{sani1019@h-ka.de} & & \small \href{mailto:lema1046@h-ka.de}{lema1046@h-ka.de} \\
+    \small Matrikelnr.: 74808 & & \small Matrikelnr.: 103626
+  \end{tabular}
+}
+
+\date{\today}
+
+\begin{document}
+
+% Titelseite
+\maketitle
+\vfill
+\begin{center}
+    \small
+    Betreuer: Prof. Dr. Daniel Braun \\
+    Abgabedatum: [Datum]
+\end{center}
+\thispagestyle{empty}
+\newpage
+
+% Inhaltsverzeichnis
+\tableofcontents
+\newpage
+
+\onehalfspacing
+
+% ==========================================
+% INHALT (Struktur aus Struktur_Seminararbeit.pdf)
+% ==========================================
+
+\section{Einleitung: Das 2D-Kamerasystem als Messsensor}
+
+\section{Das Kameramodell: Parameterarten}
+\subsection{Intrinsische Parameter (Innere Orientierung)}
+\subsection{Extrinsische Parameter (Äußere Orientierung)}
+
+\section{Physikalische Herausforderung: Linsenverzerrungen}
+\subsection{Radiale Verzerrung}
+\subsection{Tangentiale Verzerrung}
+
+\section{Geometrische Kalibrierverfahren}
+\subsection{Verwendung von Kalibriermustern}
+\subsection{Methode nach Tsai}
+\subsection{Methode nach Zhengyou Zhang}
+\subsection{Selbstkalibrierung}
+
+\section{Radiometrische Kalibrierung}
+\subsection{Defekte Pixel}
+\subsection{Randlichtabfall (Vignettierung)}
+\subsection{Farbkalibrierung}
+
+\newpage
+\begin{thebibliography}{9}
+    \bibitem{example} Autor. Titel. Jahr.
+\end{thebibliography}
+
+\end{document}
