@@ -1,4 +1,5 @@
-\documentclass[12pt, a4paper, parskip=half]{scrartcl}
+\documentclass[12pt,a4paper,parskip=half]{scrartcl}
+
 
 % ==========================================
 % QUALITY OF LIFE PAKETE & EINSTELLUNGEN
@@ -22,7 +23,6 @@
 \title{Kalibrierung von 2D-Kameras}
 \subtitle{Seminararbeit im Modul Sensoren \& Aktoren für Robotersysteme}
 
-% Formatierung der Autoren in einer Tabelle für saubere Ausrichtung
 \author{
   \begin{tabular}{c p{1cm} c}
     \textbf{Nico Sander} & & \textbf{Marlon Leitschuh} \\
@@ -35,7 +35,6 @@
 
 \begin{document}
 
-% Titelseite
 \maketitle
 \vfill
 \begin{center}
@@ -46,258 +45,210 @@
 \thispagestyle{empty}
 \newpage
 
-% Inhaltsverzeichnis
 \tableofcontents
 \newpage
 
 \onehalfspacing
 
 % ==========================================
-% INHALT (Struktur aus Struktur_Seminararbeit.pdf)
+% KAPITEL 1-3
 % ==========================================
 
 \section{Einleitung: Das 2D-Kamerasystem als Messsensor}
-
-In der heutigen Industrielandschaft, die maßgeblich durch die vierte industrielle Revolution und die zunehmende Autonomie von Robotersystemen geprägt ist, hat sich die Rolle der 2D-Kamera grundlegend gewandelt. Sie fungiert nicht mehr bloß als Instrument zur visuellen Dokumentation oder zur einfachen Objekterkennung, sondern hat sich zu einem hochpräzisen optischen Messsensor entwickelt.[1, 2] In einem Masterstudium der Robotik und Künstlichen Intelligenz ist das Verständnis der Kamerasensorik von zentraler Bedeutung, da die visuelle Wahrnehmung oft die einzige Schnittstelle zwischen der digitalen Steuerungslogik und der physischen Realität darstellt.
+In der heutigen Industrielandschaft, die maßgeblich durch die vierte industrielle Revolution und die zunehmende Autonomie von Robotersystemen geprägt ist, hat sich die Rolle der 2D-Kamera grundlegend gewandelt. Sie fungiert nicht mehr bloß als Instrument zur visuellen Dokumentation oder zur einfachen Objekterkennung, sondern hat sich zu einem hochpräzisen optischen Messsensor entwickelt. In einem Masterstudium der Robotik und Künstlichen Intelligenz ist das Verständnis der Kamerasensorik von zentraler Bedeutung, da die visuelle Wahrnehmung oft die einzige Schnittstelle zwischen der digitalen Steuerungslogik und der physischen Realität darstellt.
 
 \subsection{Grundlagen der optischen Projektion}
+Eine Kamera ist im Kern ein optisches System, das die komplexe Geometrie einer dreidimensionalen Szene auf eine zweidimensionale Bildebene projiziert. Dieser Prozess der Dimensionsreduktion ist mit einem Informationsverlust verbunden, da die Tiefeninformation primär verloren geht. Um diesen Prozess umkehrbar zu machen und metrische Daten aus den aufgenommenen Bildern zu extrahieren, ist eine mathematische Beschreibung dieser Abbildung unerlässlich. Die physikalische Grundlage bildet dabei das Licht, welches von Objekten reflektiert wird, durch ein Linsensystem tritt und schließlich auf einem Halbleitersensor (CMOS oder CCD) registriert wird.
 
-Eine Kamera ist im Kern ein optisches System, das die komplexe Geometrie einer dreidimensionalen Szene auf eine zweidimensionale Bildebene projiziert.[1] Dieser Prozess der Dimensionsreduktion ist mit einem Informationsverlust verbunden, da die Tiefeninformation primär verloren geht. Um diesen Prozess umkehrbar zu machen und metrische Daten aus den aufgenommenen Bildern zu extrahieren, ist eine mathematische Beschreibung dieser Abbildung unerlässlich.[3, 4] Die physikalische Grundlage bildet dabei das Licht, welches von Objekten reflektiert wird, durch ein Linsensystem tritt und schließlich auf einem Halbleitersensor (CMOS oder CCD) registriert wird.
-
-Die Modellierung dieser Lichtwege folgt in der Regel dem Prinzip der Zentralprojektion, wobei alle Lichtstrahlen durch ein einzelnes Projektionszentrum verlaufen.[2, 3] In der Realität weichen industrielle Kamerasysteme jedoch von diesem idealisierten Modell ab. Fertigungstoleranzen bei der Montage der Sensoren, Unvollkommenheiten in der Linsenkrümmung und die präzise Ausrichtung der optischen Achse führen dazu, dass jedes Kamerasystem individuelle Charakteristika aufweist.[3, 5]
+Die Modellierung dieser Lichtwege folgt in der Regel dem Prinzip der Zentralprojektion, wobei alle Lichtstrahlen durch ein einzelnes Projektionszentrum verlaufen. In der Realität weichen industrielle Kamerasysteme jedoch von diesem idealisierten Modell ab. Fertigungstoleranzen bei der Montage der Sensoren, Unvollkommenheiten in der Linsenkrümmung und die präzise Ausrichtung der optischen Achse führen dazu, dass jedes Kamerasystem individuelle Charakteristika aufweist.
 
 \subsection{Definition der Kamerakalibrierung}
-
-Die Kamerakalibrierung wird definiert als der methodische Prozess zur Bestimmung der mathematischen Parameter, welche die Abbildung der 3D-Welt auf die 2D-Sensorebene beschreiben.[1, 6] Man unterscheidet hierbei zwischen der Bestimmung der inneren Geometrie des Sensors und der Optik (intrinsische Parameter) sowie der Bestimmung der Position und Orientierung der Kamera relativ zu ihrer Umgebung (extrinsische Parameter).[1, 7] Erst durch die Kenntnis dieser Parameter können Bildpunkte (Pixel) in reale Koordinaten (Millimeter oder Meter) umgerechnet werden, was die Basis für jede messende Anwendung darstellt.[1, 8]
+Die Kamerakalibrierung wird definiert als der methodische Prozess zur Bestimmung der mathematischen Parameter, welche die Abbildung der 3D-Welt auf die 2D-Sensorebene beschreiben. Man unterscheidet hierbei zwischen der Bestimmung der inneren Geometrie des Sensors und der Optik (intrinsische Parameter) sowie der Bestimmung der Position und Orientierung der Kamera relativ zu ihrer Umgebung (extrinsische Parameter). Erst durch die Kenntnis dieser Parameter können Bildpunkte (Pixel) in reale Koordinaten (Millimeter oder Meter) umgerechnet werden, was die Basis für jede messende Anwendung darstellt.
 
 \subsection{Zielsetzung des Kalibrierungsprozesses}
-
-Das primäre Ziel der 2D-Kalibrierung ist die Minimierung des sogenannten Reprojektionsfehlers. Dies bedeutet, dass ein mathematisch berechneter Punkt in der Bildebene so exakt wie möglich mit dem tatsächlichen physikalischen Abbild auf dem Sensor übereinstimmen muss.[3, 9] Dabei verfolgt die Kalibrierung drei wesentliche Unterziele:
+Das primäre Ziel der 2D-Kalibrierung ist die Minimierung des sogenannten Reprojektionsfehlers. Dies bedeutet, dass ein mathematisch berechneter Punkt in der Bildebene so exakt wie möglich mit dem tatsächlichen physikalischen Abbild auf dem Sensor übereinstimmen muss. Dabei verfolgt die Kalibrierung drei wesentliche Unterziele:
 \begin{enumerate}
-    \item Die Ermittlung der intrinsischen Kamerawerte wie Brennweite und Hauptpunktverschiebung.[1, 7]
+    \item Die Ermittlung der intrinsischen Kamerawerte wie Brennweite und Hauptpunktverschiebung.
     \item Die rechnerische Korrektur von optischen Verzeichnungen, um ein \enquote{ideales} Bild ohne Linsenfehler zu erzeugen.
     \item Die Bestimmung der Lage der Kamera im Raum, um eine Interaktion zwischen Roboterarmen und visuell detektierten Objekten zu ermöglichen.
 \end{enumerate}
 
 \subsection{Relevanz in der Robotik und KI}
+Die Relevanz einer präzisen Kalibrierung ist in der modernen Robotik omnipräsent. Kleine Fehler in den Kameraparametern führen bei der Transformation in den 3D-Raum zu Fehlern, die proportional zur Entfernung des Objekts wachsen. Beispielsweise kann eine Abweichung der Brennweite von nur einem Prozent bei einer Entfernung von einem Meter bereits zu einem Lokalisierungsfehler von mehreren Zentimetern führen – eine Toleranz, die für präzise Pick-and-Place-Aufgaben oder die automatisierte Montage völlig inakzeptabel ist.
 
-Die Relevanz einer präzisen Kalibrierung ist in der modernen Robotik omnipräsent. Kleine Fehler in den Kameraparametern führen bei der Transformation in den 3D-Raum zu Fehlern, die proportional zur Entfernung des Objekts wachsen.[1, 3] Beispielsweise kann eine Abweichung der Brennweite von nur einem Prozent bei einer Entfernung von einem Meter bereits zu einem Lokalisierungsfehler von mehreren Zentimetern führen – eine Toleranz, die für präzise Pick-and-Place-Aufgaben oder die automatisierte Montage völlig inakzeptabel ist.[1]
+Darüber hinaus benötigen moderne Algorithmen der Künstlichen Intelligenz, insbesondere im Bereich des maschinellen Sehens (Computer Vision), kalibrierte Eingangsdaten, um robuste Vorhersagen treffen zu können. Ein neuronales Netz, das auf die Erkennung von Defekten trainiert wurde, kann durch Linsenverzerrungen am Bildrand getäuscht werden, wenn diese nicht vorab rechnerisch kompensiert wurden. Somit bildet die Kalibrierung das Fundament, auf dem alle weiteren Schritte der Bildverarbeitung und Robotersteuerung aufbauen.
 
-Darüber hinaus benötigen moderne Algorithmen der Künstlichen Intelligenz, insbesondere im Bereich des maschinellen Sehens (Computer Vision), kalibrierte Eingangsdaten, um robuste Vorhersagen treffen zu können. Ein neuronales Netz, das auf die Erkennung von Defekten trainiert wurde, kann durch Linsenverzerrungen am Bildrand getäuscht werden, wenn diese nicht vorab rechnerisch kompensiert wurden. Somit bildet die Kalibrierung das Fundament, auf dem alle weiteren Schritte der Bildverarbeitung und Robotersteuerung aufbauen.[1, 6]
-
-% Platzhalter für Abbildung: Projektionsmodell
 \begin{figure}[h!]
     \centering
-    \fbox{Abbildung: Darstellung der Projektion einer 3D-Szene auf eine 2D-Bildebene}
-    \caption{Schematische Darstellung der Zentralprojektion und der Koordinatensysteme.[1, 3]}
+    \fbox{\parbox{0.8\textwidth}{\centering \vspace{2cm} [Platzhalter: Abbildung Projektionsmodell] \vspace{2cm}}}
+    \caption{Schematische Darstellung der Zentralprojektion und der Koordinatensysteme.}
     \label{fig:projection_model}
 \end{figure}
 
 \section{Das Kameramodell: Parameterarten}
-
-Um die Abbildungseigenschaften einer Kamera rechnerisch handhabbar zu machen, wird ein mathematisches Modell verwendet, das die physikalischen Vorgänge abstrahiert. Dieses Modell wird durch verschiedene Parameterarten definiert, die in der Fachliteratur meist in intrinsische und extrinsische Parameter unterteilt werden.[1, 7]
+Um die Abbildungseigenschaften einer Kamera rechnerisch handhabbar zu machen, wird ein mathematisches Modell verwendet, das die physikalischen Vorgänge abstrahiert. Dieses Modell wird durch verschiedene Parameterarten definiert, die in der Fachliteratur meist in intrinsische und extrinsische Parameter unterteilt werden.
 
 \subsection{Intrinsische Parameter (Innere Orientierung)}
+Die intrinsischen Parameter beschreiben die interne Geometrie und die optischen Eigenschaften der Kamera-Objektiv-Einheit. Sie sind fest mit der Hardware verbunden und ändern sich – sofern kein Zoom-Objektiv verwendet wird – nach der Kalibrierung nicht mehr.
 
-Die intrinsischen Parameter beschreiben die interne Geometrie und die optischen Eigenschaften der Kamera-Objektiv-Einheit. Sie sind fest mit der Hardware verbunden und ändern sich – sofern kein Zoom-Objektiv verwendet wird – nach der Kalibrierung nicht mehr.[7, 10]
+\subsubsection{Die effektive Brennweite (\texorpdfstring{$f_x, f_y$}{fx, fy})}
+Die Brennweite stellt den physikalischen Abstand zwischen dem optischen Zentrum der Linse und dem Bildsensor dar. In der digitalen Bildverarbeitung wird dieser Wert jedoch nicht in Millimetern, sondern in Pixeleinheiten angegeben. Da die einzelnen Pixel auf einem Sensor nicht immer perfekt quadratisch sind, wird die Brennweite oft getrennt für die horizontale ($f_x$) und vertikale ($f_y$) Achse berechnet. Dies berücksichtigt den Skalierungsfaktor der Sensorelemente und stellt sicher, dass geometrische Formen wie Kreise im Bild nicht als Ellipsen interpretiert werden.
 
-\subsubsection{Die effektive Brennweite ($f_x, f_y$)}
+\subsubsection{Der Bildhauptpunkt (\texorpdfstring{$c_x, c_y$}{cx, cy})}
+Der Bildhauptpunkt, auch Principal Point genannt, ist der Punkt, an dem die optische Achse den Bildsensor senkrecht schneidet. Idealerweise sollte dieser Punkt exakt im geometrischen Zentrum des Pixelsensors liegen. In der Praxis führen jedoch minimale Ungenauigkeiten bei der Montage des Sensors im Gehäuse dazu, dass der Hauptpunkt um einige Pixel verschoben ist. Die Kenntnis dieses Punktes ist entscheidend, da alle radialen Verzerrungsmodelle auf diesem Zentrum basieren.
 
-Die Brennweite stellt den physikalischen Abstand zwischen dem optischen Zentrum der Linse und dem Bildsensor dar. In der digitalen Bildverarbeitung wird dieser Wert jedoch nicht in Millimetern, sondern in Pixeleinheiten angegeben.[10] Da die einzelnen Pixel auf einem Sensor nicht immer perfekt quadratisch sind, wird die Brennweite oft getrennt für die horizontale ($f_x$) und vertikale ($f_y$) Achse berechnet.[1, 7] Dies berücksichtigt den Skalierungsfaktor der Sensorelemente und stellt sicher, dass geometrische Formen wie Kreise im Bild nicht als Ellipsen interpretiert werden.[7, 10]
+\subsubsection{Skalierungsfaktoren und Scherung (\texorpdfstring{$s$}{s})}
+Zusätzlich zu den Brennweiten werden Skalierungsfaktoren für die Pixelgeometrie berücksichtigt. Der Scherungsparameter ($s$ oder Skew) beschreibt, ob die x- und y-Achsen des Sensors perfekt rechtwinklig zueinander stehen. Bei modernen CMOS-Sensoren ist dieser Wert aufgrund der hochpräzisen Fertigungsverfahren in der Regel vernachlässigbar klein oder Null. Dennoch bleibt er Teil der allgemeinen Kameramatrix, um auch bei extremen Weitwinkelobjektiven oder älteren Scannersystemen die mathematische Korrektheit zu wahren.
 
-\subsubsection{Der Bildhauptpunkt ($c_x, c_y$)}
-
-Der Bildhauptpunkt, auch Principal Point genannt, ist der Punkt, an dem die optische Achse den Bildsensor senkrecht schneidet.[7, 10] Idealerweise sollte dieser Punkt exakt im geometrischen Zentrum des Pixelsensors liegen (z. B. bei 960/540 bei einer Full-HD-Auflösung). In der Praxis führen jedoch minimale Ungenauigkeiten bei der Montage des Sensors im Gehäuse dazu, dass der Hauptpunkt um einige Pixel verschoben ist.[1, 5, 7] Die Kenntnis dieses Punktes ist entscheidend, da alle radialen Verzerrungsmodelle auf diesem Zentrum basieren.[8, 9]
-
-\subsubsection{Skalierungsfaktoren und Scherung ($s$)}
-
-Zusätzlich zu den Brennweiten werden Skalierungsfaktoren für die Pixelgeometrie berücksichtigt. Der Scherungsparameter ($s$ oder Skew) beschreibt, ob die x- und y-Achsen des Sensors perfekt rechtwinklig zueinander stehen.[1, 7] Bei modernen CMOS-Sensoren ist dieser Wert aufgrund der hochpräzisen Fertigungsverfahren in der Regel vernachlässigbar klein oder Null.[7, 11] Dennoch bleibt er Teil der allgemeinen Kameramatrix, um auch bei extremen Weitwinkelobjektiven oder älteren Scannersystemen die mathematische Korrektheit zu wahren.[2, 10]
-
-\subsubsection{Die Kameramatrix $K$}
-
-Alle intrinsischen Parameter werden kompakt in einer $3 \times 3$-Matrix, der sogenannten Kameramatrix $K$, zusammengefasst [1, 7]:
+\subsubsection{Die Kameramatrix \texorpdfstring{$K$}{K}}
+Alle intrinsischen Parameter werden kompakt in einer $3 \times 3$-Matrix, der sogenannten Kameramatrix $K$, zusammengefasst:
 \[
 K = \begin{bmatrix} f_x & s & c_x \\ 0 & f_y & c_y \\ 0 & 0 & 1 \end{bmatrix}
 \]
-Diese Matrix ist das Herzstück der intrinsischen Kalibrierung und ermöglicht die Transformation von Koordinaten im Kamerakoordinatensystem in Pixelkoordinaten.[1, 7]
+Diese Matrix ist das Herzstück der intrinsischen Kalibrierung und ermöglicht die Transformation von Koordinaten im Kamerakoordinatensystem in Pixelkoordinaten.
 
 \subsection{Extrinsische Parameter (Äußere Orientierung)}
+Während die intrinsischen Parameter das \enquote{Innenleben} der Kamera beschreiben, definieren die extrinsischen Parameter die Lage und Ausrichtung des Kamerasystems relativ zum Einsatzort oder einem Weltkoordinatensystem. 
 
-Während die intrinsischen Parameter das \enquote{Innenleben} der Kamera beschreiben, definieren die extrinsischen Parameter die Lage und Ausrichtung des Kamerasystems relativ zum Einsatzort oder einem Weltkoordinatensystem.[1, 7] Dies ist vergleichbar mit der Angabe von Standort und Blickrichtung einer Person im Raum.
+\subsubsection{Translation (\texorpdfstring{$T$}{T})}
+Der Translationsvektor beschreibt die Verschiebung des Kameraursprungs (optisches Zentrum) zum Ursprung des Weltkoordinatensystems. Er besteht aus drei Parametern ($t_x, t_y, t_z$), welche die Position in den Raumrichtungen definieren. In Roboteranwendungen entspricht dies oft dem Abstand zwischen der Roboterbasis und dem Montagepunkt der Kamera.
 
-\subsubsection{Translation ($T$)}
-
-Der Translationsvektor beschreibt die Verschiebung des Kameraursprungs (optisches Zentrum) zum Ursprung des Weltkoordinatensystems. Er besteht aus drei Parametern ($t_x, t_y, t_z$), welche die Position in den Raumrichtungen definieren.[1, 9] In Roboteranwendungen entspricht dies oft dem Abstand zwischen der Roboterbasis und dem Montagepunkt der Kamera.
-
-\subsubsection{Rotation ($R$)}
-
-Die Rotation beschreibt die Ausrichtung der Kamera im Raum. Hierfür sind drei Freiheitsgrade erforderlich, die meist als Rotationswinkel um die drei Achsen (Roll, Pitch, Yaw) angegeben werden.[9] Mathematisch wird dies durch eine $3 \times 3$ Rotationsmatrix $R$ dargestellt, welche sicherstellt, dass die Vektoren orthogonal bleiben.[1, 5] Die extrinsischen Parameter werden oft in einer homogenen Transformationsmatrix zusammengefasst, um 3D-Weltpunkte effizient in das lokale Koordinatensystem der Kamera zu überführen.[1, 3]
-
-\begin{table}[h!]
-    \centering
-    \begin{tabular}{lll}
-        \toprule
-        Parameterart & Komponenten & Bedeutung \\
-        \midrule
-        \textbf{Intrinsisch} & $f_x, f_y, c_x, c_y, s$ & Interne Optik, Brennweite, Bildmitte \\
-        \textbf{Extrinsisch} & $R (3 \times 3), T (3 \times 1)$ & Position und Orientierung im Weltraum \\
-        \textbf{Verzerrung} & $k_1, k_2, p_1, p_2$ & Korrekturkoeffizienten für Linsenfehler \\
-        \bottomrule
-    \end{tabular}
-    \caption{Zusammenfassung der wesentlichen Kameraparameter.[1, 7, 9, 10]}
-\end{table}
+\subsubsection{Rotation (\texorpdfstring{$R$}{R})}
+Die Rotation beschreibt die Ausrichtung der Kamera im Raum. Hierfür sind drei Freiheitsgrade erforderlich, die meist als Rotationswinkel um die drei Achsen (Roll, Pitch, Yaw) angegeben werden. Mathematisch wird dies durch eine $3 \times 3$ Rotationsmatrix $R$ dargestellt, welche sicherstellt, dass die Vektoren orthogonal bleiben. Die extrinsischen Parameter werden oft in einer homogenen Transformationsmatrix zusammengefasst, um 3D-Weltpunkte effizient in das lokale Koordinatensystem der Kamera zu überführen.
 
 \section{Physikalische Herausforderung: Linsenverzerrungen}
-
-Kein optisches System ist perfekt. Die Verwendung von Glaslinsen zur Lichtbrechung führt zwangsläufig zu geometrischen Abweichungen, da Lichtstrahlen je nach Einfallswinkel unterschiedlich stark gebrochen werden. Diese Abweichungen werden als Linsenverzerrungen bezeichnet und müssen im Rahmen der Kalibrierung korrigiert werden, um metrische Genauigkeit zu erreichen.[1, 3]
+Kein optisches System ist perfekt. Die Verwendung von Glaslinsen zur Lichtbrechung führt zwangsläufig zu geometrischen Abweichungen, da Lichtstrahlen je nach Einfallswinkel unterschiedlich stark gebrochen werden. Diese Abweichungen werden als Linsenverzerrungen bezeichnet und müssen im Rahmen der Kalibrierung korrigiert werden, um metrische Genauigkeit zu erreichen.
 
 \subsection{Ursache der Verzerrungen}
-
-Die Hauptursache für Verzerrungen liegt in der sphärischen Form der Linsenoberflächen und der nicht idealen Ausrichtung der optischen Komponenten während der Fertigung.[1, 5] Während ein theoretisches Lochkameramodell Lichtstrahlen geradlinig passieren lässt, erzeugen reale Linsen eine Krümmung der Abbildung, die besonders zu den Bildrändern hin zunimmt.[3, 8]
+Die Hauptursache für Verzerrungen liegt in der sphärischen Form der Linsenoberflächen und der nicht idealen Ausrichtung der optischen Komponenten während der Fertigung. Während ein theoretisches Lochkameramodell Lichtstrahlen geradlinig passieren lässt, erzeugen reale Linsen eine Krümmung der Abbildung, die besonders zu den Bildrändern hin zunimmt.
 
 \subsection{Radiale Verzerrung}
-
-Die radiale Verzerrung ist die dominanteste Form des geometrischen Fehlers. Sie tritt auf, wenn der Vergrößerungsfaktor des Objektivs vom radialen Abstand zur optischen Achse abhängt.[3, 8]
+Die radiale Verzerrung ist die dominanteste Form des geometrischen Fehlers. Sie tritt auf, wenn der Vergrößerungsfaktor des Objektivs vom radialen Abstand zur optischen Achse abhängt.
 
 \subsubsection{Tonnenförmige Verzerrung (Barrel Distortion)}
-
-Bei der tonnenförmigen Verzerrung nimmt die Vergrößerung zu den Bildrändern hin ab. Dies führt dazu, dass gerade Linien im Außenbereich des Bildes wie die Seiten eines Fasses nach außen gebogen erscheinen.[1, 3] Dieser Effekt tritt typischerweise bei Weitwinkelobjektiven auf, da hier ein extrem großes Sichtfeld auf einen vergleichsweise kleinen Sensor komprimiert werden muss. In der Robotik ist dies bei Navigationskameras häufig zu beobachten, die ein breites Umfeld erfassen müssen.
+Bei der tonnenförmigen Verzerrung nimmt die Vergrößerung zu den Bildrändern hin ab. Dies führt dazu, dass gerade Linien im Außenbereich des Bildes wie die Seiten eines Fasses nach außen gebogen erscheinen. Dieser Effekt tritt typischerweise bei Weitwinkelobjektiven auf, da hier ein extrem großes Sichtfeld auf einen vergleichsweise kleinen Sensor komprimiert werden muss.
 
 \subsubsection{Kissenförmige Verzerrung (Pincushion Distortion)}
+Umgekehrt nimmt bei der kissenförmigen Verzerrung die Vergrößerung zu den Bildrändern hin zu. Linien biegen sich zur Bildmitte hin ein, ähnlich wie ein eingedrücktes Kissen. Dieser Effekt ist oft bei Teleobjektiven zu finden, wenn das Sichtfeld des Objektivs kleiner ist als die tatsächliche Fläche des Bildsensors.
 
-Umgekehrt nimmt bei der kissenförmigen Verzerrung die Vergrößerung zu den Bildrändern hin zu. Linien biegen sich zur Bildmitte hin ein, ähnlich wie ein eingedrücktes Kissen. Dieser Effekt ist oft bei Teleobjektiven zu finden, wenn das Sichtfeld des Objektivs kleiner ist als die tatsächliche Fläche des Bildsensors.[1]
-
-Mathematisch wird die radiale Verzerrung durch Korrekturkoeffizienten ($k_1, k_2, k_3$) beschrieben, welche die Pixelpositionen basierend auf ihrem Abstand zum Hauptpunkt verschieben.[8, 9, 10]
+Mathematisch wird die radiale Verzerrung durch Korrekturkoeffizienten ($k_1, k_2, k_3$) beschrieben, welche die Pixelpositionen basierend auf ihrem Abstand zum Hauptpunkt verschieben.
 
 \subsection{Tangentiale Verzerrung}
-
-Die tangentiale Verzerrung entsteht durch mechanische Unvollkommenheiten, wenn die einzelnen Linsenelemente innerhalb des Objektivs oder die Linse zum Sensor nicht exakt parallel ausgerichtet sind. Dies führt zu einer leichten \enquote{Schrägstellung} der Abbildung.[1] In der industriellen Praxis ist dieser Fehler bei hochwertigen Objektiven oft vernachlässigbar klein, wird jedoch bei hochpräzisen Messaufgaben durch die Parameter $p_1$ und $p_2$ mitberücksichtigt.[1, 7, 10]
+Die tangentiale Verzerrung entsteht durch mechanische Unvollkommenheiten, wenn die einzelnen Linsenelemente innerhalb des Objektivs oder die Linse zum Sensor nicht exakt parallel ausgerichtet sind. Dies führt zu einer leichten \enquote{Schrägstellung} der Abbildung. In der industriellen Praxis ist dieser Fehler bei hochwertigen Objektiven oft vernachlässigbar klein, wird jedoch bei hochpräzisen Messaufgaben durch die Parameter $p_1$ und $p_2$ mitberücksichtigt.
 
 \subsection{Lösung durch Kalibrierung}
+Die Kalibrierung ermittelt diese Korrekturkoeffizienten, indem sie die Differenz zwischen der verzerrten Beobachtung und der idealen projektiven Geometrie minimiert. Das Ergebnis ist ein Korrekturalgorithmus, der jedes aufgenommene Bild \enquote{entzerren} kann. 
 
-Die Kalibrierung ermittelt diese Korrekturkoeffizienten, indem sie die Differenz zwischen der verzerrten Beobachtung und der idealen projektiven Geometrie minimiert.[1, 9] Das Ergebnis ist ein Korrekturalgorithmus, der jedes aufgenommene Bild \enquote{entzerren} kann. Ein so behandeltes Bild verhält sich mathematisch wie ein Bild einer idealen Lochkamera, was die anschließende Berechnung von Distanzen und Posen massiv vereinfacht.[1, 3]
-
-% Platzhalter für Abbildung: Verzerrungseffekte
 \begin{figure}[h!]
     \centering
-    \fbox{Abbildung: Gegenüberstellung von tonnenförmiger und kissenförmiger Verzeichnung}
+    \fbox{\parbox{0.8\textwidth}{\centering \vspace{2cm} [Platzhalter: Abbildung Linsenverzerrungen] \vspace{2cm}}}
     \caption{Visualisierung der radialen Verzeichnungstypen im Vergleich zum idealen Gitter.}
     \label{fig:distortions}
 \end{figure}
 
-\section{Geometrische Kalibrierverfahren}
+% ==========================================
+% ÜBERARBEITETE KAPITEL 4-7
+% ==========================================
+\newpage
 
-Um die beschriebenen intrinsischen und extrinsischen Parameter zu bestimmen, wurden verschiedene mathematische Verfahren entwickelt. Diese nutzen in der Regel bekannte geometrische Strukturen, um die Abbildungsfehler der Kamera zu berechnen.[1, 3]
+\section{Geometrische Kalibrierverfahren}
+Zur Bestimmung intrinsischer und extrinsischer Kameraparameter existieren verschiedene geometrische Kalibrierverfahren. Ihr gemeinsames Ziel besteht darin, die reale Abbildung einer Kamera mathematisch so genau zu beschreiben, dass sich Projektionsfehler und optische Verzerrungen kompensieren lassen. Grundlage ist in der Regel der Vergleich zwischen bekannten geometrischen Strukturen in der realen Welt und ihrer Abbildung auf dem Sensor.
+
+In der Praxis lassen sich diese Verfahren grob in zwei Klassen einteilen: musterbasierte Verfahren und musterlose Verfahren. Musterbasierte Verfahren verwenden ein bekanntes Kalibrierobjekt mit definierter Geometrie, während musterlose Verfahren die Kameraparameter aus natürlichen Bildmerkmalen und der Bewegung der Kamera schätzen. Für industrielle Anwendungen sind musterbasierte Verfahren aufgrund ihrer hohen Genauigkeit und Reproduzierbarkeit in der Regel die bevorzugte Wahl.
 
 \subsection{Verwendung von Kalibriermustern}
+Die am weitesten verbreitete Form der geometrischen Kamerakalibrierung basiert auf speziell vorbereiteten Kalibriermustern. Häufig werden hierfür planare Schachbrettmuster, Kreispunktmuster oder andere eindeutig detektierbare geometrische Strukturen eingesetzt. Das Grundprinzip besteht darin, dass die bekannten geometrischen Abstände des Musters mit den im Bild detektierten Merkmalen verglichen werden. Aus den dabei auftretenden Abweichungen kann der Kalibrieralgorithmus die Parameter der Kamera bestimmen.
 
-Die zuverlässigste Methode zur Kamerakalibrierung ist die Verwendung spezieller Kalibriermuster. Dabei handelt es sich meist um plane Objekte mit hochpräzisen, kontrastreichen Mustern wie Schachbrettern oder Kreisgittern. Die Kamera nimmt dieses Muster aus verschiedenen Positionen und Orientierungen auf. Da die physikalischen Abstände auf dem Muster (z. B. 30 mm pro Quadratseite) exakt bekannt sind, kann der Computer die Abweichungen im Bild analysieren.
+Der praktische Vorteil dieser Vorgehensweise liegt in der hohen Kontrollierbarkeit des Messaufbaus. Da Form und Abmessungen des Musters bekannt sind, lässt sich die Schätzung der Kameraparameter numerisch stabil und mit hoher Genauigkeit durchführen. Insbesondere bei der industriellen Inbetriebnahme, bei Qualitätskontrollen oder in der robotischen Messtechnik sind solche Verfahren deshalb von großer Bedeutung.
 
-\subsection{Methode nach Tsai}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.65\textwidth]{images/kalibriermuster.png}
+    \caption{Beispielhaftes Schachbrettmuster zur Kamerakalibrierung.}
 
-Die 1987 von Roger Tsai vorgestellte Methode ist ein klassisches photogrammetrisches Verfahren. Es handelt sich um eine zweistufige Technik zur Minimierung des Fehlers in der Bildebene.[3, 9]
+\end{figure}
 
-\begin{enumerate}
-    \item \textbf{Stufe 1}: Schätzung der extrinsischen Parameter (Rotation und Teile der Translation) sowie des Skalierungsfaktors durch lineare Gleichungssysteme.[3, 9]
-    \item \textbf{Stufe 2}: Exakte Berechnung der Brennweite, der z-Translation und der radialen Verzerrung mittels nicht-linearer Optimierung (z. B. Gradientenabstieg).[3, 9]
-\end{enumerate}
+\subsubsection{Die Methode nach Tsai}
+Ein klassisches, historisch bedeutsames Verfahren der musterbasierten Kalibrierung ist die Methode nach Tsai. Sie gehört zu den frühen standardisierten Ansätzen zur Bestimmung der intrinsischen und extrinsischen Kameraparameter und basiert darauf, dass die dreidimensionalen Koordinaten mehrerer Kalibrierpunkte im Weltkoordinatensystem mit hoher Genauigkeit bekannt sind.
 
-Tsai benötigt mindestens 7 bekannte Weltkoordinatenpunkte, wobei eine höhere Anzahl die Genauigkeit signifikant steigert.[1, 9] Ein Nachteil der Tsai-Methode ist die Anforderung an ein sehr präzise gefertigtes 3D-Kalibrierobjekt oder eine sehr genaue Positionierung, was in der Praxis oft aufwendig ist.[12]
+Das Verfahren nutzt also nicht nur die Bildkoordinaten detektierter Punkte, sondern zusätzlich deren reale räumliche Lage. Auf dieser Basis wird zunächst ein projektives Kameramodell geschätzt, aus dem anschließend Größen wie Brennweite, Lage des Hauptpunkts sowie Rotations- und Translationsparameter bestimmt werden. Vereinfacht gesagt verknüpft die Methode bekannte 3D-Punkte mit ihren 2D-Abbildungen auf dem Sensor und löst daraus die unbekannten Kameraparameter.
 
-\subsection{Methode nach Zhengyou Zhang}
+Die Stärke der Tsai-Methode liegt in ihrer klaren mathematischen Formulierung und ihrer grundsätzlich hohen Genauigkeit. Ihr praktischer Nachteil besteht jedoch darin, dass ein präzise gefertigtes dreidimensionales Kalibrierobjekt benötigt wird. Ein solches Objekt ist in Herstellung, Handhabung und Vermessung deutlich aufwendiger als ein einfaches ebenes Schachbrettmuster. Dadurch steigt nicht nur der organisatorische Aufwand, sondern auch die Anfälligkeit gegenüber Montage- und Messfehlern am Kalibrierkörper selbst. Aus diesem Grund wird die Methode nach Tsai heute vor allem dort interessant, wo bereits hochpräzise 3D-Referenzkörper vorhanden sind oder wo spezielle Messaufgaben eine besonders kontrollierte räumliche Referenz erfordern.
 
-Das Verfahren nach Zhang (entwickelt 1998/2000) ist heute der Standard in der industriellen Bildverarbeitung und in Bibliotheken wie OpenCV implementiert.[1, 1, 13]
+\subsubsection{Die Methode nach Zhengyou Zhang}
+Um die praktische Komplexität früherer Verfahren zu reduzieren, wurde die Methode nach Zhengyou Zhang entwickelt, die sich heute als Standardverfahren für die Kalibrierung von Monokameras etabliert hat. Sie wird unter anderem in weit verbreiteten Bibliotheken wie OpenCV eingesetzt und ist deshalb sowohl in der Forschung als auch in industriellen Anwendungen sehr präsent.
 
-Der große Vorteil von Zhangs Methode ist ihre Flexibilität: Sie benötigt lediglich ein flaches Schachbrettmuster, das einfach ausgedruckt und auf eine ebene Fläche geklebt werden kann.[1, 12, 13] Im Gegensatz zu Tsai muss die Position des Musters im Weltkoordinatensystem nicht vorab bekannt sein.[1, 13] Die Software detektiert die Eckpunkte des Schachbretts in den Bildern und nutzt die Tatsache aus, dass die Punkte in der Realität auf einer Ebene liegen ($Z=0$), um die intrinsischen Parameter zu extrapolieren. Durch die Aufnahme von etwa 10 bis 20 verschiedenen Posen des Schachbretts wird eine sehr hohe Genauigkeit erreicht, die für die meisten Robotikanwendungen absolut ausreichend ist.[1, 10, 12]
+Im Unterschied zur Tsai-Methode genügt hier ein ebenes Kalibriermuster, typischerweise ein Schachbrett. Dieses Muster wird aus mehreren unterschiedlichen Positionen und Neigungen aufgenommen. Die Software detektiert die inneren Ecken des Schachbretts und nutzt die Tatsache aus, dass alle diese Punkte auf einer gemeinsamen Ebene liegen. Aus mehreren solchen Ansichten lassen sich die intrinsischen Parameter der Kamera sowie die Verzerrungskoeffizienten robust schätzen. Die extrinsischen Parameter ergeben sich jeweils bezogen auf die einzelne Aufnahme des Musters.
+
+Der große Vorteil des Verfahrens liegt in seiner einfachen praktischen Umsetzbarkeit. Für viele Anwendungen reicht bereits ein sauber ausgedrucktes Schachbrettmuster aus, sofern es plan liegt und aus ausreichend vielen Perspektiven aufgenommen wird. Gleichzeitig liefert die Methode bei korrekter Durchführung sehr präzise Ergebnisse. Ihre Qualität hängt allerdings stark davon ab, dass die Aufnahmen eine gute Variabilität in Orientierung und Bildlage aufweisen. Werden nur ähnliche Perspektiven aufgenommen oder befindet sich das Muster stets nahe der Bildmitte, kann die Parameterschätzung ungenauer oder numerisch instabil werden.
+
 
 \subsection{Selbstkalibrierung}
+Im Gegensatz zu den musterbasierten Verfahren verzichtet die Selbstkalibrierung vollständig auf ein explizites Kalibrierobjekt. Stattdessen werden die Kameraparameter aus einer Bildfolge geschätzt, während sich die Kamera relativ zur Szene bewegt oder sich Objekte innerhalb der Szene bewegen. Grundlage ist die Beobachtung, dass dieselben markanten Bildmerkmale in mehreren Aufnahmen wiedererkannt und geometrisch zueinander in Beziehung gesetzt werden können.
 
-Die Selbstkalibrierung ist ein fortgeschrittenes Verfahren, bei dem keine speziellen Muster benötigt werden. Stattdessen werden Merkmale der natürlichen Umgebung (Kanten, Ecken von Möbeln oder Gebäuden) genutzt, während die Kamera bewegt wird. Durch die Analyse der Kamerabewegung in einer Videosequenz können die Parameter geschätzt werden.[1, 2]
+Das Verfahren analysiert dazu natürliche Strukturen wie Ecken, Kanten oder Texturmerkmale und verfolgt deren Lage über mehrere Bilder hinweg. Aus diesen Korrespondenzen lassen sich Aussagen über die Kamerabewegung und über die zugrunde liegende Projektionsgeometrie ableiten. Auf diese Weise können zumindest Teile der intrinsischen Parameter sowie die relativen Kameraposen geschätzt werden, ohne dass zuvor ein künstliches Muster in die Szene eingebracht werden muss.
 
-\begin{table}[h!]
-    \centering
-    \begin{tabular}{llll}
-        \toprule
-        Merkmal & Tsai-Methode & Zhang-Methode & Selbstkalibrierung \\
-        \midrule
-        \textbf{Bedarf} & 3D-Kalibrierobjekt & 2D-Flachmuster & Natürliche Merkmale \\
-        \textbf{Bilderanzahl} & Wenige (oft eins) & Viele (10-20) & Kontinuierlicher Stream \\
-        \textbf{Genauigkeit} & Mittel & Hoch & Geringer \\
-        \textbf{Komplexität} & Hoch (Hardware) & Gering (Software) & Sehr hoch (Algorithmus) \\
-        \bottomrule
-    \end{tabular}
-    \caption{Vergleich der gängigen geometrischen Kalibrierverfahren.[1, 12, 13]}
-\end{table}
-
-\subsection{Praktische Umsetzung in ROS und OpenCV}
-
-In der Robotik wird häufig das Robot Operating System (ROS) eingesetzt. ROS bietet ein standardisiertes Paket zur Kamerakalibrierung, das auf der Zhang-Methode basiert.[1] Der Benutzer führt das Programm aus, hält ein Schachbrettmuster in das Sichtfeld der Kamera und bewegt es so lange, bis genügend Daten für alle Bildbereiche gesammelt wurden. Nach erfolgreicher Berechnung speichert ROS die Parameter in einer YAML-Datei, die automatisch von anderen Knoten (z. B. für die Objekterkennung) eingelesen wird, um entzerrte Bilder zu generieren.[1]
+Der wesentliche Vorteil der Selbstkalibrierung liegt in ihrer Flexibilität. Sie ist insbesondere dort attraktiv, wo ein klassischer Kalibriervorgang unpraktisch ist, etwa bei mobilen Robotern in großen Umgebungen oder bei bereits installierten Kamerasystemen, die nicht ohne Weiteres mit einem Kalibriermuster angefahren werden können. Gleichzeitig ist dieses Verfahren jedoch empfindlicher gegenüber Bildrauschen, schwacher Textur, Bewegungsunschärfe und ungünstigen Kamerabewegungen. Zudem ist die Genauigkeit im Allgemeinen geringer als bei gut durchgeführten musterbasierten Verfahren. Aus diesem Grund wird die Selbstkalibrierung häufig eher als ergänzendes oder initiales Verfahren verwendet, während für präzise Messaufgaben weiterhin die klassische Musterkalibrierung bevorzugt wird.
 
 \section{Radiometrische Kalibrierung}
+Während die geometrische Kalibrierung die räumliche Zuordnung der Bildpunkte beschreibt, befasst sich die radiometrische Kalibrierung mit der Korrektur und Vereinheitlichung der gemessenen Intensitäts- und Farbwerte. Ziel ist es, dass gleiche physikalische Lichtverhältnisse möglichst auch zu vergleichbaren Pixelwerten führen. Dies ist insbesondere dann wichtig, wenn Bilddaten nicht nur visuell betrachtet, sondern als Grundlage für quantitative Auswertungen verwendet werden, etwa bei der Farberkennung, Defektdetektion oder Merkmalsextraktion.
 
-Während die geometrische Kalibrierung sicherstellt, dass die Strukturen im Bild an der richtigen Stelle sitzen, befasst sich die radiometrische Kalibrierung mit der Korrektur von Helligkeiten, Farben und Sensorfehlern.
+Radiometrische Einflüsse entstehen unter anderem durch Unterschiede in der Empfindlichkeit einzelner Pixel, durch elektronisches Rauschen, durch den Einfluss der Belichtungszeit oder durch optische Effekte des Objektivs. Ohne geeignete Korrektur können diese Faktoren dazu führen, dass zwei identische Objekte unter gleichen Bedingungen im Bild unterschiedlich erscheinen. Eine radiometrische Kalibrierung erhöht daher die Vergleichbarkeit und Stabilität der aufgenommenen Daten.
 
-\subsection{Fokus der radiometrischen Korrektur}
+\subsection{Korrektur defekter Pixel}
+Bildsensoren können aufgrund von Fertigungstoleranzen, Alterung oder thermischen Effekten einzelne Pixel aufweisen, die fehlerhafte Werte liefern. Solche Pixel reagieren entweder gar nicht mehr auf Lichteinfall, zeigen dauerhaft zu hohe Intensitäten oder verhalten sich instabil. In Bilddaten äußert sich dies häufig als punktförmige helle oder dunkle Störung.
 
-Das Ziel ist es, ein Bild zu erhalten, bei dem die Helligkeitswerte der Pixel direkt proportional zur tatsächlich einfallenden Lichtmenge sind.[1, 14] Dies ist besonders wichtig für die automatisierte Qualitätskontrolle, bei der Farbunterschiede oder Oberflächenbeschaffenheiten beurteilt werden müssen.
+Zur Erkennung solcher Fehler werden Referenzaufnahmen verwendet. Dunkelbilder, die mit abgedecktem Objektiv aufgenommen werden, machen Pixel sichtbar, die auch ohne Lichteinfall ein Signal erzeugen. Helligkeits- beziehungsweise Weißbilder dienen dazu, unempfindliche oder abweichend reagierende Pixel in einer gleichmäßig ausgeleuchteten Szene zu identifizieren. Nach der Detektion können diese fehlerhaften Pixel softwareseitig maskiert und durch Interpolation benachbarter Pixelwerte ersetzt werden. Dadurch wird verhindert, dass nachgelagerte Algorithmen einzelne Sensordefekte fälschlich als reale Bildmerkmale interpretieren.
 
-\subsection{Defekte Pixel}
+\subsection{Kompensation des Randlichtabfalls (Vignettierung)}
+Ein weiteres relevantes radiometrisches Problem ist die Vignettierung. Dabei nimmt die Helligkeit zum Rand des Bildes hin ab, obwohl die reale Szene homogen ausgeleuchtet sein kann. Ursache hierfür sind optische Eigenschaften des Linsensystems, geometrische Effekte schräg einfallender Lichtstrahlen sowie teilweise auch mechanische Abschattungen innerhalb des Objektivs.
 
-Kein Kamerasensor ist perfekt. Aufgrund von Fertigungsfehlern oder Alterung können einzelne Pixel fehlerhafte Werte liefern. Man unterscheidet:
-\begin{itemize}
-    \item \textbf{Dead Pixel}: Pixel, die immer schwarz bleiben (kein Signal).[1, 8]
-    \item \textbf{Hot Pixel}: Pixel, die aufgrund von Dunkelstrom immer weiß oder hell leuchten, auch wenn kein Licht einfällt.[1, 8]
-\end{itemize}
-
-Diese Fehler werden durch die Aufnahme von \textbf{Dunkelbildern} (Objektiv abgedeckt) und \textbf{Weißbildern} (homogen beleuchtete Fläche) identifiziert.[1, 8] In der Software werden diese Pixel dann durch Mittelwertbildung ihrer Nachbarn ersetzt oder schlichtweg ignoriert.[1, 8, 15]
-
-\subsection{Randlichtabfall (Vignettierung)}
-
-Vignettierung bezeichnet den Effekt, dass ein Bild zu den Rändern hin dunkler wird, obwohl das Motiv gleichmäßig hell ist. Dies hat zwei Ursachen:
-\begin{enumerate}
-    \item \textbf{Optische Vignettierung}: Das Objektivgehäuse schattet schräg einfallende Lichtstrahlen ab.[15]
-    \item \textbf{Sensor-Vignettierung}: Die Mikrolinsen auf dem CMOS-Sensor fangen Licht am Rand weniger effizient ein als im Zentrum.
-\end{enumerate}
-
-Die Korrektur erfolgt durch die \textbf{Shading-Korrektur} (auch Flat-Field-Korrektur genannt). Dabei wird das Bild mit einem invertierten Weißbild verrechnet, um die Helligkeit über das gesamte Sichtfeld zu homogenisieren.[1, 14] Moderne Industriekameras können diese Korrektur oft direkt in der Hardware (FPGA) durchführen.[14, 15]
+Für Anwendungen der industriellen Bildverarbeitung ist dieser Helligkeitsabfall problematisch, weil identische Objekte abhängig von ihrer Position im Bild unterschiedlich hell erscheinen können. Zur Korrektur wird häufig eine Shading-Korrektur eingesetzt. Hierbei wird die Helligkeitsverteilung einer homogenen Referenzfläche aufgenommen und daraus ein Korrekturmodell berechnet, das die Randbereiche gezielt anhebt. Auf diese Weise entsteht ein deutlich gleichmäßigeres Bild, das sich besser für Segmentierung, Schwellenwertverfahren und quantitative Auswertung eignet.
 
 \subsection{Farbkalibrierung und Weißabgleich}
+Wenn nicht nur Helligkeit, sondern auch Farbe zuverlässig ausgewertet werden soll, ist eine Farbkalibrierung erforderlich. Dies betrifft insbesondere Anwendungen, in denen Produkte anhand ihrer Farbe sortiert, Oberflächenfehler erkannt oder Materialeigenschaften visuell beurteilt werden. Da Sensoren und Beleuchtungssysteme Farben nicht ideal erfassen, weichen die gemessenen RGB-Werte oft von den physikalisch erwarteten Farbwerten ab.
 
-Für Anwendungen, die Farbtreue erfordern (z. B. Klassifikation von Lebensmitteln oder Lackprüfungen), ist eine Farbkalibrierung notwendig. Hierbei wird eine standardisierte Farbtafel (z. B. Color Checker) fotografiert. Die Abweichung der aufgenommenen RGB-Werte zu den Referenzwerten der Tafel wird genutzt, um eine Korrekturmatrix zu berechnen.
+Zur Korrektur wird häufig eine standardisierte Farbtafel verwendet, deren Farbfelder bekannte Referenzwerte besitzen. Das Kamerasystem nimmt diese Tafel unter definierten Beleuchtungsbedingungen auf, und aus den Abweichungen zwischen gemessenen und bekannten Werten wird ein Farbtransformationsmodell berechnet. Dieses Modell kann anschließend auf weitere Aufnahmen angewendet werden, um eine konsistentere und realitätsnähere Farbwiedergabe zu erreichen.
 
-Häufig reicht jedoch ein einfacher \textbf{Weißabgleich} aus. Dabei wird festgelegt, welcher Farbwert als neutrales Weiß interpretiert werden soll. Da Lichtquellen unterschiedliche Farbtemperaturen haben (warmes Glühlampenlicht vs. kaltes Tageslicht), verhindert der Weißabgleich einen Farbstich im Bild und stellt sicher, dass weiße Objekte auch im digitalen Bild weiß erscheinen.[1, 15, 16]
-
-\begin{table}[h!]
+\begin{figure}[h!]
     \centering
-    \begin{tabular}{lll}
-        \toprule
-        Korrekturtyp & Verfahren & Ziel \\
-        \midrule
-        \textbf{Defekte Pixel} & Dunkelbild/Maskierung & Entfernung von Bildfehlern \\
-        \textbf{Vignettierung} & Flat-Field-Korrektur & Homogene Helligkeitsverteilung \\
-        \textbf{Farbabgleich} & Farbtafel/Korrekturmatrix & Farbtreue Wiedergabe \\
-        \textbf{Weißabgleich} & Referenzwert-Anpassung & Neutralisierung der Lichtquelle \\
-        \bottomrule
-    \end{tabular}
-    \caption{Verfahren der radiometrischen Kalibrierung.[1, 8, 14, 15]}
-\end{table}
+    \includegraphics[width=0.75\textwidth]{images/Farbkalibrierung.jpg}
+    \caption{Genormte Farbtafel (Color Checker) zur Ermittlung radiometrischer Korrekturwerte.}
+    \label{fig:color_checker}
+\end{figure}
 
-\section{Anwendung und industrielle Praxis}
+In vielen praktischen Robotik-Anwendungen ist allerdings keine vollständige Farbkalibrierung notwendig. Häufig genügt bereits ein Weißabgleich, bei dem festgelegt wird, welche Sensorwerte unter der aktuellen Beleuchtung als neutrales Weiß gelten sollen. Dadurch lassen sich Farbstiche, etwa durch warmes Kunstlicht oder tageslichtähnliche Beleuchtung, wirksam reduzieren. Der Weißabgleich stellt damit eine einfachere, aber in vielen Fällen ausreichende Form der radiometrischen Korrektur dar.
 
-Die erfolgreiche Implementierung eines Kamerasystems in der Industrie hängt nicht nur von der Kalibrierung, sondern auch von der passenden Hardware-Wahl und den Umgebungsbedingungen ab.
+\section{Anwendungsbeispiele in der Robotik}
+Die Bedeutung der Kamerakalibrierung zeigt sich besonders deutlich in realen Robotik-Anwendungen. Erst durch die präzise Kenntnis der Abbildungseigenschaften einer Kamera können Bildinformationen zuverlässig in räumliche oder aufgabenbezogene Entscheidungen überführt werden. Kalibrierte Kameras bilden damit die Grundlage für robuste Wahrnehmung, exakte Positionsbestimmung und reproduzierbare Interaktion mit der Umgebung.
 
-\subsection{Anforderungen an Kamera und Optik}
+\subsection{Lokalisierung durch visuelle Marker (AprilTags / AruCo)}
+Quadratische visuelle Marker wie AprilTags oder ArUco-Marker werden in der Robotik häufig zur Bestimmung von Position und Orientierung verwendet. Ihr Vorteil liegt darin, dass sie mit geringem Aufwand hergestellt, eindeutig identifiziert und vergleichsweise robust detektiert werden können. Wird ein solcher Marker im Kamerabild erkannt, lässt sich aus seiner bekannten Geometrie und den detektierten Bildecken die Pose des Markers relativ zur Kamera oder umgekehrt die Pose der Kamera relativ zum Marker berechnen.
 
-Bei der Auswahl muss zwischen \textbf{Rolling Shutter} (günstiger, aber Verzerrungen bei Bewegung) und \textbf{Global Shutter} (präziser für bewegte Roboter) abgewogen werden. Die Brennweite muss zum Arbeitsabstand passen; oft wird die Formel $f = (h \cdot D) / (h + H)$ verwendet, um die benötigte Brennweite basierend auf Objektgröße $H$ und Distanz $D$ zu berechnen.[1] Eine hochwertige Optik reduziert zudem den Kalibrieraufwand, da sie weniger Verzerrungen und chromatische Aberrationen (Farbfehler) erzeugt.[1]
+Damit diese Posenschätzung metrisch korrekt ist, müssen die intrinsischen Kameraparameter und insbesondere die Verzerrungskoeffizienten bekannt sein. Ohne vorherige Kalibrierung würden Linsenverzerrungen die Lage der Eckpunkte verschieben und damit direkt zu Fehlern in der berechneten Pose führen. Gerade in Anwendungen wie Pick-and-Place, mobiler Navigation oder der Kalibrierung von Arbeitsräumen ist die Kamerakalibrierung deshalb eine zwingende Voraussetzung für den sinnvollen Einsatz solcher Marker.
 
-\subsection{Anforderungen an die Umgebung}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/AprilTags_AruCo.jpg}
+    \caption{Beispiele verschiedener visueller Markersysteme, darunter AprilTag- und ArUco-Familien, die in der Robotik zur robusten Detektion und Posenschätzung eingesetzt werden.}
+    \label{fig:apriltags}
+\end{figure}
 
-Beleuchtung ist das kritischste Element. Ein homogener Hintergrund und diffuses Licht verhindern störende Reflexionen auf metallischen Bauteilen, welche die Kalibrierung oder Objekterkennung verfälschen könnten. In der automatisierten Qualitätskontrolle werden oft spezielle Lichtzelte oder Ringlichter eingesetzt, um konstante Bedingungen zu schaffen.[1, 14]
+\subsection{VSLAM bei autonomen mobilen Robotern}
+Vision Simultaneous Localization and Mapping, kurz VSLAM, bezeichnet Verfahren, bei denen ein mobiler Roboter seine eigene Position bestimmt und gleichzeitig eine Karte der Umgebung aufbaut. Dazu werden fortlaufend aufgenommene Kamerabilder ausgewertet, um markante Bildmerkmale wiederzuerkennen und deren Veränderung über die Zeit geometrisch zu interpretieren.
+
+Die Schätzung der Bewegung kann je nach System auf einer Monokamera, auf Stereokameras oder auf der Kombination mit weiteren Sensoren wie Inertialsensoren basieren. Unabhängig von der konkreten Ausprägung ist eine korrekte Kamerakalibrierung von zentraler Bedeutung, da die gesamte geometrische Rekonstruktion auf präzisen Bildkoordinaten beruht. Werden Verzerrungen nicht kompensiert oder sind die intrinsischen Parameter fehlerhaft, entstehen Fehler in der Merkmalszuordnung, in der Bewegungsschätzung und letztlich in der aufgebauten Karte. Für autonome mobile Roboter ist die Kalibrierung daher eine wesentliche Voraussetzung für stabile Navigation und verlässliche Umgebungswahrnehmung.
+
+\subsection{Kamerakalibrierung in ROS (Robot Operating System)}
+In Forschungs- und Entwicklungsumgebungen wird für die Integration von Kameras häufig das Robot Operating System (ROS) eingesetzt. ROS stellt Werkzeuge bereit, mit denen sich Kameras relativ komfortabel kalibrieren und die ermittelten Parameter systemweit nutzbar machen lassen. Dadurch wird die Einbindung von Bildsensorik in komplexere Robotersysteme erheblich vereinfacht.
+
+Typischerweise veröffentlicht ein Kameratreiber die Rohbilder auf einem Bild-Topic, das von einem Kalibrierwerkzeug verarbeitet wird. Der Anwender bewegt ein Schachbrettmuster vor der Kamera, bis ausreichend Aufnahmen aus unterschiedlichen Blickwinkeln gesammelt wurden. Anschließend berechnet das System die Kalibrierparameter und speichert sie in einer Konfigurationsdatei, die vom Kameratreiber oder von nachfolgenden Bildverarbeitungsmodulen genutzt werden kann. In der Praxis zeigt sich hier besonders deutlich, dass Kamerakalibrierung nicht nur ein theoretisches Thema ist, sondern ein fester Bestandteil realer Entwicklungs- und Inbetriebnahmeprozesse in der Robotik.
 
 \section{Fazit}
+Die Kalibrierung von 2D-Kameras ist eine grundlegende Voraussetzung für den zuverlässigen Einsatz visueller Sensorik in der Robotik. Erst durch die Bestimmung intrinsischer und extrinsischer Parameter sowie durch die Korrektur optischer und radiometrischer Einflüsse wird aus einer Kamera ein Messsystem, dessen Bilddaten nicht nur betrachtet, sondern quantitativ genutzt werden können.
 
-Die 2D-Kamerakalibrierung ist kein bloßer theoretischer Exkurs, sondern das unverzichtbare Fundament für alle messenden und wahrnehmenden Systeme in der Robotik und KI. Während die geometrische Kalibrierung durch Verfahren wie die Zhang-Methode heute weitgehend automatisiert und benutzerfreundlich umsetzbar ist, bleibt die radiometrische Korrektur entscheidend für die Stabilität von Bildverarbeitungsalgorithmen unter realen industriellen Bedingungen.[1, 14]
+Die vorangegangenen Kapitel haben gezeigt, dass insbesondere die geometrische Kalibrierung für die räumliche Interpretation von Bildinformationen unverzichtbar ist. Verfahren wie die Methode nach Tsai und vor allem die Methode nach Zhang ermöglichen es, reale Abbildungsfehler systematisch zu erfassen und in mathematischen Modellen zu beschreiben. Ergänzend sorgt die radiometrische Kalibrierung dafür, dass Helligkeits- und Farbwerte konsistent und auswertbar bleiben.
 
-Ein Master-Absolvent im Bereich Robotik muss verstehen, dass die Qualität der Daten das gesamte System limitiert: Selbst die fortschrittlichste KI oder der präziseste Roboterarm können keine Höchstleistungen erbringen, wenn das \enquote{Auge} des Systems – die Kamera – nicht korrekt kalibriert ist. Die Integration von Hardware-Wissen (Sensortypen, Linsenphysik) mit mathematischen Modellen (Kameramatrizen, Optimierungsverfahren) ist daher die Schlüsselkompetenz für eine erfolgreiche Prozessintegration in der modernen Produktion.[1, 6]
+Für die industrielle und robotische Praxis bedeutet dies, dass die Qualität eines visuellen Systems nicht allein von der nominellen Auflösung oder dem Preis der Kamera abhängt. Ebenso entscheidend sind ein geeigneter Kalibrierprozess, eine kontrollierte Beleuchtung, die Wahl passender Objektive sowie eine robuste Weiterverarbeitung der aufgenommenen Bilddaten. Die Kamerakalibrierung bildet damit die unverzichtbare Brücke zwischen physikalischer Realität, Bildverarbeitung und präziser Roboteraktion.
 
 \end{document}
